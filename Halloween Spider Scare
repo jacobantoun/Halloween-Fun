@@ -1,0 +1,55 @@
+#include <Servo.h> //Using a servo too unleash the BEASTTTT
+#define led 3 //used this for testing purposes
+#define servoPin 9 //Servo is connected to pin 9
+#define trigPin 10 //trigger pin of the HC-SR04
+#define echoPin 11 //echo pin of the HC-SR04
+Servo myServo; //created a Servo object from the Servo.h class
+long inches; //I made this global so I can use it in all of my functions
+
+void setup() {
+  Serial.begin(9600); //Testing purposes
+  myServo.attach(servoPin); //Attaches the servo to the servoPin (pin 9)
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(led, OUTPUT);
+  myServo.write(180); //sets servo into closed position 
+}
+
+void loop() {
+  sonicSensor(); //Calculates the distance in inches
+  if(inches<10) {
+    digitalWrite(led, LOW);
+    servoOpen(); //This is what controls the spider to fall out
+  } else {
+    digitalWrite(led, HIGH); //Kinda like an "Armed and Ready" light
+  }
+}
+
+void sonicSensor() { //This function calculates the duration of the echo pin
+  long duration;
+  
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  duration = pulseIn(echoPin, HIGH);
+  inches = microsecondsToInches(duration);
+  Serial.println(inches);
+  delay(200);
+ }
+ 
+ long microsecondsToInches(long microseconds) { //converts the duration into inches
+   return microseconds / 74 / 2;
+ }
+ 
+ void servoOpen() { //This is what opens up the 'lid' on the container to release the spider!
+  int pos = 0;
+  for(pos = 0; pos < 180; pos = pos+5)  // goes from 0 degrees to 180 degrees 
+  {                                  // in steps of 1 degree 
+    myServo.write(pos);              // tell servo to go to position in variable 'pos' 
+    delay(15);                       // waits 15ms for the servo to reach the position 
+  } 
+ }
+   
